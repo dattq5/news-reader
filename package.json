@@ -3,10 +3,13 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "homepage": "https://dattq5.github.io/news-reader/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build:prod": "tsc && vite build --base=/news-reader/",
+    "preview": "vite preview",
+    "predeploy": "npm run build:prod",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "^11.9.3",
@@ -20,6 +23,7 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.0",
+    "gh-pages": "^4.0.0",
     "sass": "^1.53.0",
     "typescript": "^4.6.4",
     "vite": "^3.0.0"
