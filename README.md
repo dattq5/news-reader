@@ -2,9 +2,6 @@
 
 
 ### TODO
-
-- [ ] Pagination
-- [ ] Loading indicator
 - [ ] Unit test
 
 ### Completed ✓

@@ -15,11 +15,14 @@ export default function ArticleCard({image, title, author, description, publishe
         height="140"
         image={image}
         alt={title}
+        title={title}
+        onClick={() => window.open(url, '_blank')}
+        sx={{ cursor: 'pointer'}}
       />
       <CardContent>
         <Grid container>
           <Grid item xs={12} md={8}>
-            <Typography variant="subtitle2" component="div" sx={{color: 'gray'}}>
+            <Typography variant="subtitle2" component="div" sx={{color: 'gray'}} title={author}>
               {author}
             </Typography>
           </Grid>
@@ -30,7 +33,7 @@ export default function ArticleCard({image, title, author, description, publishe
           </Grid>
         </Grid>
         <Typography gutterBottom variant="h5" component="div">
-        <Link href={url} underline="hover" variant="h5" target="_blank">
+        <Link href={url} underline="hover" variant="h5" target="_blank" title={title}>
           {title}
         </Link>
         </Typography>

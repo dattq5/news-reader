@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
 import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
 import { API } from '../common/api';
-import { STORAGE_KEY } from '../common/constants';
+import { DEFAULT_PAGE_SIZE, STORAGE_KEY } from '../common/constants';
 import { ArticleModel, ArticleSourceModel } from '../models/article.model';
 import ArticleCard from './ArticleCard';
 import defaultArticleImage from '../assets/placeholder-news.jpg';
@@ -14,11 +14,41 @@ export default function ArticleList() {
   const [sourceList, setSourceList] = useState<ArticleSourceModel[]>([]);
   const [articleList, setArticleList] = useState<ArticleModel[]>([]);
   const [source, setSource] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const totalItemsRef = useRef(-1);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  // load content function
+  const loadArticles = useCallback((page: number = 1) => {
+    const sourceId = sourceList.find(s => s.name === source)?.id;
+    setCurrentPage(page);
+    fetch(API.getArticles({page, source: sourceId}))
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          if (data.status === 'ok') {
+            if (page === 1) {
+              totalItemsRef.current = data.totalResults;
+            }
+            const newArticleList: ArticleModel[] = (data.articles || []).map((article: any) => ({
+              author: article.author,
+              title: article.title,
+              description: article.description,
+              url: article.url,
+              image: article.urlToImage || defaultArticleImage,
+              source: article.source?.name ?? '',
+              publishedAt: article.publishedAt
+            }))
+            setArticleList(page === 1 ? newArticleList : articleList.concat(newArticleList));
+          }
+        }).catch(e => {
+          console.error('Error while fetching article list', e);
+        });
+  }, [source, currentPage]);
+
   useEffect(() => {
+    // fetch source
     const sourceStr = localStorage.getItem(STORAGE_KEY.SOURCES);
     if (!sourceStr) {
-      // setIsLoading(true);
       fetch(API.getSources())
         .then(response => response.json())
         .then(data => {
@@ -33,41 +63,41 @@ export default function ArticleList() {
           }
         }).catch(e => {
           console.error('Error while fetching sources', e);
-        }).finally(() => {
-          // setIsLoading(false);
         });
     } else {
       setSourceList(JSON.parse(sourceStr));
     }
+    const loadMore = () => {
+      if (totalItemsRef.current <= (DEFAULT_PAGE_SIZE * currentPage)) {
+        return;
+      }
+      if (window.innerHeight + document.documentElement.scrollTop === document?.scrollingElement?.scrollHeight) {
+        setCurrentPage(currentPage + 1);
+      }
+    }
+    
+    // add scroll event listen for load more function
+    document.addEventListener('scroll', loadMore);
+  
+    return () => {
+      document.removeEventListener('scroll', loadMore);
+    }
   }, []);
   
   useEffect(() => {
-    const sourceId = sourceList.find(s => s.name === source)?.id;
-    // setIsLoading(true);
-    fetch(API.getArticles({source: sourceId}))
-        .then(response => response.json())
-        .then(data => {
-          console.log(data);
-          if (data.status === 'ok') {
-            setArticleList((data.articles || []).map((article: any) => ({
-              author: article.author,
-              title: article.title,
-              description: article.description,
-              url: article.url,
-              image: article.urlToImage || defaultArticleImage,
-              source: article.source?.name ?? '',
-              publishedAt: article.publishedAt
-            })));
-          }
-        }).catch(e => {
-          console.error('Error while fetching article list', e);
-        }).finally(() => {
-          // setIsLoading(false);
-        });
+    // load content when source has been changed
+    loadArticles();
   }, [source]);
+  
+  useEffect(() => {
+    // load more content
+    if (currentPage > 1) {
+      loadArticles(currentPage);
+    }
+  }, [currentPage]);
   return <>
     {
-      isLoading ?
+      articleList.length === 0 ?
       <Box sx={{ display: 'flex', width: '100vw', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
         <CircularProgress />
       </Box>
