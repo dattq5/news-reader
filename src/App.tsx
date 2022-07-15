@@ -1,5 +1,5 @@
 import './App.scss';
-import ArticleList from './screens/ArticleList';
+import ArticleList from './components/ArticleList';
 
 function App() {
   return (

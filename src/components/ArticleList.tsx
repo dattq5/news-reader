@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid';
 import { API } from '../common/api';
 import { STORAGE_KEY } from '../common/constants';
 import { ArticleModel, ArticleSourceModel } from '../models/article.model';
-import ArticleCard from '../components/ArticleCard';
+import ArticleCard from './ArticleCard';
 import defaultArticleImage from '../assets/placeholder-news.jpg';
 
 export default function ArticleList() {
@@ -73,24 +73,24 @@ export default function ArticleList() {
       </Box>
       :
       <Grid container spacing={2}>
-        <Grid item xs={8}>
-        </Grid>
-        <Grid item xs={4}>
-          <Autocomplete
-            disablePortal
-            id="combobox-articleSources"
-            inputValue={source}
-            onInputChange={(event, newInputValue) => {
-              setSource(newInputValue);
-            }}
-            options={sourceList}
-            getOptionLabel={option => option?.name ?? ''}
-            sx={{ width: 300 }}
-            renderInput={(params) => <TextField {...params} label="Source..." />}
-          />
+        <Grid item xs={12}>
+          <Box sx={{display: 'flex', flexDirection: 'row-reverse'}}>
+            <Autocomplete
+              disablePortal
+              id="combobox-articleSources"
+              inputValue={source}
+              onInputChange={(event, newInputValue) => {
+                setSource(newInputValue);
+              }}
+              options={sourceList}
+              getOptionLabel={option => option?.name ?? ''}
+              sx={{ width: 300 }}
+              renderInput={(params) => <TextField {...params} label="Source..." />}
+            />
+          </Box>
         </Grid>
         {
-          articleList.map((article, idx) => <Grid item xs={6} md={4} lg={3} key={idx}>
+          articleList.map((article, idx) => <Grid item xs={12} sm={6} md={4} lg={3} key={idx}>
               <ArticleCard  image={article.image}
                             title={article.title}
                             url={article.url}
