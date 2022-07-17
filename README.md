@@ -1,5 +1,10 @@
 # News Reader
-
+- Run the project on local machine:
+```
+$ npm install
+$ npm run dev
+```
+Open browser and access the link: `http://localhost:5173/`
 
 ### TODO
 - [ ] Unit test
